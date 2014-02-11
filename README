@@ -4,5 +4,113 @@ While it supports simple mouse movement and key strokes simulation, what really 
 from other macro operations libraries or programs is that it can powerfullly search your screen for pixels.
 
 This means that you can automate many tasks depending on the current color of pixels on your screen. Using
-this technic, automating complex processes (like betting at a roulette game, which is not encouraged) becomes
+this technique, automating complex processes (like betting at a roulette game, which is not encouraged) becomes
 very easy.
+
+
+allows you to do operations like:
+
+
+Cursor:
+
+Move Cursor
+Get Cursor position
+Left/Middle/Right click
+
+
+Keyboard:
+
+Write raw ascii characters
+Simulate Key Down/Key Up
+
+
+Pixels of the screen:
+
+Get the color of a pixel of the screen
+See if a specific color exists on a region of the screen
+Get the total count of pixels that have a specific color on an area
+Wait for a pixel color (or multiple colors) to show up on a point (or multiple points)
+Wait for a pixel color to show up on an area
+Most of the waiting functions above have a "special" version where you can pass a function pointer to be run on 
+your preferred timeout as long as the program is waiting
+Save section of the screen to file (takes screenshot of region of the screen, 
+useful when you need to do Optical Character Recognition with some program)
+
+
+The library only depends on 
+
+python-qt4
+python-pyatspi2
+
+and I believe it to be well documented. In general, the library is powerful enough to let you do 
+complicated repetitive operations, even if they need to be executed slightly differently each time. 
+
+Consider the following scenario:
+
+You are playing a game where you have to farm. So, you have a scythe and you have to chop down corn. 
+Each time the corn appears on different place of the screen, but all the corns have a unique color. S
+o, you can search the region of the screen where the game is being played for the color of corn. 
+In every occurrence you will click the corn and chop it down (mention that the functions that wait for 
+a specific color on a region return the coordinates of the screen whe
+So, the program will work each time for every possible combination of the corn plants. 
+(This is NOT the recommended usage of this library, this is just an example to demonstrate its usage 
+and why it can work well on different occasions).
+
+Tips:
+
+Keep in mind that getting the color of pixel through color_of_pixel() function and the cursor position 
+through the get_cursor_pos() function, you can find the color of the pixel that is below your cursor. 
+That way you can find the regions that you have to search for a specific color and other useful stuff 
+for use with the other functions.
+
+There is a variable called "PIXELS_SEARCH_SPEED" and, once you have imported macropolo through "import macropolo", 
+you can access it via macropolo.PIXELS_SEARCH_SPEED and you can modify it. 
+This variable is used on funtions that search regions of the screen. 
+It tells how many pixels to skip after one being checked. 
+ts default value is 1 (this means check every pixel of the region). 
+Setting it to a value of 2 will result to a 2 times faster search of the region, but it will skip a pixel 
+after each pixel that is being searched. 
+
+This is useful if, e.g. you wait for a large circle of a specific color to appear to the screen. 
+In this case, you don't have to search each pixel, you can may as well skip some, because you can be sure 
+that one of the pixels that will be searched will be part of the large circle.
+
+If you want to type out something that in fact needs to be combination of keys, you have to apply the combination.
+~!@#$%^&*()_+ cannot appear in key_down/key_up/keyboard functions. 
+If you want to type ! then you have to call Shift and 1 for key_up and then key_down functions.
+
+
+TO USE VIA IMPORT: 
+
+find where your python seraches for things:
+>>> import sys
+>>> sys.path
+['', '/usr/lib/python2.7', '/usr/lib/python2.7/plat-i386-linux-gnu', '/usr/lib/python2.7/lib-tk', 
+'/usr/lib/python2.7/lib-old', '/usr/lib/python2.7/lib-dynload', '/usr/local/lib/python2.7/dist-packages', 
+'/usr/lib/python2.7/dist-packages', '/usr/lib/python2.7/dist-packages/PILcompat', 
+'/usr/lib/python2.7/dist-packages/gst-0.10', '/usr/lib/python2.7/dist-packages/gtk-2.0', '/usr/lib/pymodules/python2.7']
+>>> exit()
+
+dump it in one of them.
+
+
+THEN TO USE:
+
+me@minty16 /usr/local/src/xautoclick-0.31 $ python
+Python 2.7.5+ (default, Sep 19 2013, 13:49:51) 
+[GCC 4.8.1] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> 
+>>> import macropolo
+>>> macro = macropolo.Macro()
+>>> macro.move_cursor_to(1, 1)
+
+For example.
+
+
+
+
+
+
+
+
