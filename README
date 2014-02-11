@@ -48,10 +48,12 @@ complicated repetitive operations, even if they need to be executed slightly dif
 Consider the following scenario:
 
 You are playing a game where you have to farm. So, you have a scythe and you have to chop down corn. 
-Each time the corn appears on different place of the screen, but all the corns have a unique color. S
-o, you can search the region of the screen where the game is being played for the color of corn. 
+Each time the corn appears on different place of the screen, but all the corns have a unique color. 
+
+So, you can search the region of the screen where the game is being played for the color of corn. 
 In every occurrence you will click the corn and chop it down (mention that the functions that wait for 
 a specific color on a region return the coordinates of the screen whe
+
 So, the program will work each time for every possible combination of the corn plants. 
 (This is NOT the recommended usage of this library, this is just an example to demonstrate its usage 
 and why it can work well on different occasions).
