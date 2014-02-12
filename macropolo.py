@@ -3,7 +3,7 @@ from pyatspi import Registry as controller
 from pyatspi import (KEY_SYM, KEY_PRESS, KEY_PRESSRELEASE, KEY_RELEASE, MOUSE_ABS)
 from PyQt4.QtGui import QPixmap, QApplication, QColor, QImage, QDesktopWidget, QCursor
 from PyQt4.QtCore import QPoint, QRect
-import sys, time, math, struct
+import sys, time, math, struct, random
 
 
 key_list = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "`", ".", "Esc", "Shift", "Win", "Up", "Down", "Left", "Right", "Ctrl", "Alt", "space", " ", "Return", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F22")
@@ -49,9 +49,6 @@ class Macro:
 		final_x = x
 		final_y = y
 
-		"""move at 500 pixels per second TODO: easing would be nice """
-		velocity_x = velocity_y = velocity = 500 
-		
 		""" debug output""" 
 		#print "Moving to", final_x, final_y, "at", velocity_x, "pixels per second"
 		
@@ -73,6 +70,12 @@ class Macro:
 
 		distance_left_x = math.fabs(current_x - final_x);
 		distance_left_y = math.fabs(current_y - final_y);
+
+		"""move at 500 pixels per second TODO: easing would be nice """
+		velocity_x = velocity_y = velocity = random.randrange(250,500) 
+		
+		if max(total_distance_x,total_distance_y) < 100 :
+			velocity_x = velocity_y = velocity = random.randrange(30,50)
 		
 		""" dont bother if we are already there """	
 		if distance_left_x > 0 or distance_left_y > 0 :
