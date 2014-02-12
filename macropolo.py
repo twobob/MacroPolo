@@ -3,7 +3,7 @@ from pyatspi import Registry as controller
 from pyatspi import (KEY_SYM, KEY_PRESS, KEY_PRESSRELEASE, KEY_RELEASE, MOUSE_ABS)
 from PyQt4.QtGui import QPixmap, QApplication, QColor, QImage, QDesktopWidget, QCursor
 from PyQt4.QtCore import QPoint, QRect
-import sys, time, math
+import sys, time, math, struct
 
 
 key_list = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "`", ".", "Esc", "Shift", "Win", "Up", "Down", "Left", "Right", "Ctrl", "Alt", "space", " ", "Return", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F22")
@@ -64,10 +64,12 @@ class Macro:
 		weight_x = weight_y = 1
 
 		if total_distance_x > total_distance_y :
-			weight_x = total_distance_x / total_distance_y
-
+			# avoid division by 0
+			weight_x = total_distance_x / (total_distance_y +1)
+			
 		if total_distance_y > total_distance_x :
-			weight_y = total_distance_x / total_distance_y
+			# avoid division by 0
+			weight_y = total_distance_x / (total_distance_y +1)
 
 		distance_left_x = math.fabs(current_x - final_x);
 		distance_left_y = math.fabs(current_y - final_y);
@@ -250,14 +252,19 @@ class Macro:
 				"""
             cur_y+=1
         return False, [-1, -1]
-        
 
+    def color_of_pixel_rgb(self, x, y):
+    
+        c = QColor(QPixmap.grabWindow(QApplication.desktop().winId()).toImage().pixel(x, y))
+	
+	rgbstr = to_upper(str(c.name()))[1:]
+	return struct.unpack('BBB',rgbstr.decode('hex'))
 
     def color_of_pixel(self, x, y):
         """Returns the pixel color of the pixel at coordinates x, y."""
         c = QColor(QPixmap.grabWindow(QApplication.desktop().winId()).toImage().pixel(x, y))
         return to_upper(str(c.name()))
-        
+
     def wait_for_pixel_color(self, point, color, timeout):
         """
         Waits till the point 'point' is of color 'color', checking
@@ -265,7 +272,7 @@ class Macro:
         point is a tuple [x, y]
         """
         color=to_upper(color)
-        while color_of_pixel(point[0], point[1]) != color:
+        while self.color_of_pixel(point[0], point[1]) != color:
             time.sleep(timeout/1000.0)
 
 
