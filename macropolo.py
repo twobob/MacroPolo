@@ -113,7 +113,7 @@ class Macro:
 				time.sleep(0.002)
 				
 			""" and finally just fudge the last tiny bit """
-			move_cursor_to(x, y)
+			self.move_cursor_to(x, y)
     
     def get_cursos_pos(self):
         """Returns the cursor pos as a tuple"""
