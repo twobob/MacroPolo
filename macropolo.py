@@ -3,7 +3,7 @@ from pyatspi import Registry as controller
 from pyatspi import (KEY_SYM, KEY_PRESS, KEY_PRESSRELEASE, KEY_RELEASE, MOUSE_ABS)
 from PyQt4.QtGui import QPixmap, QApplication, QColor, QImage, QDesktopWidget, QCursor
 from PyQt4.QtCore import QPoint, QRect
-import sys, time
+import sys, time, math
 
 
 key_list = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "`", ".", "Esc", "Shift", "Win", "Up", "Down", "Left", "Right", "Ctrl", "Alt", "space", " ", "Return", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F22")
@@ -37,6 +37,83 @@ class Macro:
     def move_cursor_to(self, x, y):
         """Moves the cursor to the x, y coordinates"""
         controller.generateMouseEvent(x, y, MOUSE_ABS)
+    
+    def slide_cursor_to(self, x, y):
+		"""slide the cursor to x, y coordinates """
+		current = [QCursor.pos().x(), QCursor.pos().y()] 
+
+		current_x = current[0]
+		current_y = current[1]
+		
+		"""assign some x, y coordinates to adjudge if we got there yet """
+		final_x = x
+		final_y = y
+
+		"""move at 500 pixels per second TODO: easing would be nice """
+		velocity_x = velocity_y = velocity = 500 
+		
+		""" debug output""" 
+		#print "Moving to", final_x, final_y, "at", velocity_x, "pixels per second"
+		
+		""" assign some ticking and figure out some weightings so it moves diagonally """ 
+		last = time.time()
+
+		total_distance_x = math.fabs( current_x - final_x )
+		total_distance_y = math.fabs( current_y - final_y )
+
+		weight_x = weight_y = 1
+
+		if total_distance_x > total_distance_y :
+			weight_x = total_distance_x / total_distance_y
+
+		if total_distance_y > total_distance_x :
+			weight_y = total_distance_x / total_distance_y
+
+		distance_left_x = math.fabs(current_x - final_x);
+		distance_left_y = math.fabs(current_y - final_y);
+		
+		""" dont bother if we are already there """	
+		if distance_left_x > 0 or distance_left_y > 0 :
+		
+			while (True) :
+				
+				distance_left_x = math.fabs(current_x - final_x);
+				distance_left_y = math.fabs(current_y - final_y);
+				
+				""" just ditch if we are close enough"""
+				if distance_left_x < 1 :
+					break
+				
+				if distance_left_y < 1 :
+					break
+				
+				current = time.time()
+				tick = current - last
+				last = current
+				
+				""" increment the locations """
+				""" TODO: this could be way more compact """
+				if current_x < final_x :
+					velocity_x = velocity * weight_x;    
+					current_x += velocity_x * tick;
+					
+				if current_x > final_x :
+					velocity_x = -velocity * weight_x;
+					current_x += velocity_x * tick;
+
+				if current_y < final_y :
+					velocity_y = velocity * weight_y;    
+					current_y += velocity_y * tick;
+					
+				if current_y > final_y :
+					velocity_y = -velocity * weight_y;
+					current_y += velocity_y * tick;
+
+				controller.generateMouseEvent( int(current_x), int(current_y), MOUSE_ABS)
+				time.sleep(0.002)
+				
+			""" and finally just fudge the last tiny bit """
+			move_cursor_to(x, y)
     
     def get_cursos_pos(self):
         """Returns the cursor pos as a tuple"""
@@ -132,7 +209,10 @@ class Macro:
                 cur_color = QColor(img.pixel(QPoint(cur_x, cur_y)))
                 if(str(color)==str(cur_color.name())):
                     counter+=1
-                cur_x+=PIXELS_SEARCH_SPEED
+                cur_x+= 1 
+                """
+                #PIXELS_SEARCH_SPEED
+				"""
             cur_y+=1
         return counter;
 
@@ -164,7 +244,10 @@ class Macro:
                 cur_color = QColor(img.pixel(QPoint(cur_x, cur_y)))
                 if(str(color)==str(cur_color.name())):
                     return True, [cur_x+x, cur_y+y]
-                cur_x+=PIXELS_SEARCH_SPEED
+                cur_x+= 1 
+                """
+                1 is in fact ....# PIXELS_SEARCH_SPEED
+				"""
             cur_y+=1
         return False, [-1, -1]
         
@@ -259,10 +342,10 @@ class Macro:
         The color is a string with a hexadecimal representation of 
         a color (e.g. #000000)
         """
-        exists, point = pixel_color_in_area(rectangle, color)
+        exists, point = self.pixel_color_in_area(rectangle, color)
         while not exists:
             time.sleep(timeout/1000.0)
-            exists, point = pixel_color_in_area(rectangle, color)
+            exists, point = self.pixel_color_in_area(rectangle, color)
         return point
 
 
